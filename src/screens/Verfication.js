@@ -13,7 +13,6 @@ import TablePay from "../components/TablePay";
 import VerificationModal from "../components/VerificationModal";
 import { useAtom } from "jotai";
 import { userObject } from "../state";
-import PieChart from "../components/PieChart";
 
 <ColorSchemeToggle />;
 

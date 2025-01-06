@@ -1,85 +1,111 @@
-import React, { useState, useEffect } from 'react';
-import Button from '@mui/joy/Button';
-import FormControl from '@mui/joy/FormControl';
-import FormLabel from '@mui/joy/FormLabel';
-import Modal from '@mui/joy/Modal';
-import ModalDialog from '@mui/joy/ModalDialog';
-import DialogTitle from '@mui/joy/DialogTitle';
-import DialogContent from '@mui/joy/DialogContent';
-import Stack from '@mui/joy/Stack';
-import { Input, Typography } from '@mui/joy';
-import { useAtom } from 'jotai';
-import { useNavigate } from 'react-router-dom';
-import { userObject } from "../state";
-import { mpesaCodes } from '../state/index'
+import React, { useState, useEffect } from "react";
+import {
+  Button,
+  FormControl,
+  FormLabel,
+  Modal,
+  ModalDialog,
+  DialogTitle,
+  DialogContent,
+  Stack,
+  Input,
+  Typography,
+} from "@mui/joy";
+import { useAtom } from "jotai";
+import { useNavigate } from "react-router-dom";
+import { userObject, mpesaCodes } from "../state";
 
-export default function VerificationModal(props) {
-    const navigate = useNavigate()
-    const [user, setUser] = useAtom(userObject)
-    const [mpesaCodeList, setMpesaCodeList] = useAtom(mpesaCodes)
-    const [open, setOpen] = useState(false);
-    const [paymentDetails, setPaymentDetails] = useState({})
-    const [messageError, setMessageError] = useState(false)
-    const [progress, setProgress] = useState(false)
-    useEffect(() => {
-        fetch('https://derekkemoi.github.io/MKOPOPAWA/tillDetails.json')
-            .then(response => response.json())
-            .then((data) => (
-                setPaymentDetails(data.mpesaPaymentDetails), setProgress(false)
-            ));
-    }, []);
-    return (
-        <React.Fragment>
-            <Button style={{ backgroundColor: '#00CC71' }} type="submit" fullWidth onClick={() => setOpen(true)}>
-                CONFIRM VERIFICATION
-            </Button>
-            <Modal open={open} onClose={() => setOpen(false)}>
-                <ModalDialog>
-                    <DialogTitle>Verify Payments</DialogTitle>
-                    <DialogContent>Copy the entire confirmation message you received from M-PESA after making payments and paste in the text field below then click verify button</DialogContent>
-                    <form
-                        onSubmit={(event) => {
-                            event.preventDefault();
-                            const formData = new FormData(event.currentTarget);
-                            const formJson = Object.fromEntries(formData.entries());
-                            console.log(formJson.message)
-                            var mpesaMessageList = formJson.message.split(' ')
-                            var tillNameList = paymentDetails.tillName.split(' ')
-                            if (mpesaCodeList.includes(mpesaMessageList[0]) || tillNameList[0] != mpesaMessageList[5]) {
-                                setMessageError(true)
-                                return
-                            } else {
-                                setMessageError(false)
-                            }
-                            setUser((prev) => ({
-                                ...prev,
-                                accountStatus: true
-                            }))
-                            setOpen(false);
-                            navigate(-1)
-                        }}
-                    >
-                        <Stack spacing={2}>
-                            <FormControl>
-                                <FormLabel>M-PESA Message</FormLabel>
-                                <Input
-                                    placeholder="Paste M-PESA Message Here"
-                                    error={messageError}
-                                    name="message"
-                                    helperText={messageError ? "Valid M-PESA message required" : ""}
-                                    minRows={2} required />
+export default function VerificationModal() {
+  const navigate = useNavigate();
+  const [user, setUser] = useAtom(userObject);
+  const [mpesaCodeList, setMpesaCodeList] = useAtom(mpesaCodes);
+  const [open, setOpen] = useState(false);
+  const [paymentDetails, setPaymentDetails] = useState({});
+  const [messageError, setMessageError] = useState(false);
 
-                                {
-                                    messageError ?
-                                        <Typography color='danger'>Valid M-PESA message required</Typography>
-                                        : ""
-                                }
-                            </FormControl>
-                            <Button style={{ backgroundColor: '#00CC71' }} type="submit">VERIFY</Button>
-                        </Stack>
-                    </form>
-                </ModalDialog>
-            </Modal>
-        </React.Fragment>
-    );
+  useEffect(() => {
+    const fetchPaymentDetails = async () => {
+      try {
+        const response = await fetch(
+          "https://derekkemoi.github.io/MKOPOPAWA/tillDetails.json"
+        );
+        const data = await response.json();
+        setPaymentDetails(data.mpesaPaymentDetails);
+      } catch (error) {
+        console.error("Error fetching payment details:", error);
+      }
+    };
+    fetchPaymentDetails();
+  }, []);
+
+  const handleFormSubmit = (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const message = formData.get("message");
+
+    if (!paymentDetails.tillName || !message) {
+      setMessageError(true);
+      return;
+    }
+
+    const mpesaMessageParts = message.split(" ");
+    const tillNameParts = paymentDetails.tillName.split(" ");
+
+    const isCodeInvalid = mpesaCodeList.includes(mpesaMessageParts[0]);
+    const isTillNameMismatch = tillNameParts[0] !== mpesaMessageParts[5];
+
+    if (isCodeInvalid || isTillNameMismatch) {
+      setMessageError(true);
+      return;
+    }
+
+    setMessageError(false);
+    setUser((prev) => ({ ...prev, accountStatus: true }));
+    setOpen(false);
+    navigate("/verify");
+  };
+
+  return (
+    <>
+      <Button
+        style={{ backgroundColor: "#00CC71" }}
+        fullWidth
+        onClick={() => setOpen(true)}
+      >
+        CONFIRM VERIFICATION
+      </Button>
+
+      <Modal open={open} onClose={() => setOpen(false)}>
+        <ModalDialog>
+          <DialogTitle>Verify Payments</DialogTitle>
+          <DialogContent>
+            Copy the confirmation message you received from M-PESA after making
+            payments, paste it below, and click "Verify."
+          </DialogContent>
+          <form onSubmit={handleFormSubmit}>
+            <Stack spacing={2}>
+              <FormControl>
+                <FormLabel>M-PESA Message</FormLabel>
+                <Input
+                  placeholder="Paste M-PESA message here"
+                  name="message"
+                  error={messageError}
+                  required
+                  minRows={2}
+                />
+                {messageError && (
+                  <Typography color="danger">
+                    Invalid M-PESA message. Please try again.
+                  </Typography>
+                )}
+              </FormControl>
+              <Button type="submit" style={{ backgroundColor: "#00CC71" }}>
+                VERIFY
+              </Button>
+            </Stack>
+          </form>
+        </ModalDialog>
+      </Modal>
+    </>
+  );
 }

@@ -183,7 +183,7 @@ export default function JoySignInSideTemplate() {
                         loanType: formJson.loan,
                         crbStatusReport: randomAmount(310, 500),
                         loanAmount: amount,
-                        fee: randomAmount(150, 200),
+                        fee: 200,
                         accountStatus: false,
                         registered: true,
                       }));
@@ -294,7 +294,10 @@ export default function JoySignInSideTemplate() {
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
-          backgroundImage: `url(${signupImage})`,
+          backgroundImage: {
+            xs: "none", // Remove background image on small screens
+            md: `url(${signupImage})`, // Apply background image on medium and larger screens
+          },
           [theme.getColorSchemeSelector("dark")]: {
             backgroundImage: `url(${signupImage})`,
           },
