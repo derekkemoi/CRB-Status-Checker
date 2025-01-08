@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useEffect } from "react";
 import { CssVarsProvider, extendTheme } from "@mui/joy/styles";
 import GlobalStyles from "@mui/joy/GlobalStyles";
 import CssBaseline from "@mui/joy/CssBaseline";
@@ -24,9 +24,11 @@ export default function Verification() {
   const [user, setUser] = useAtom(userObject);
   const randomScore = Math.floor(Math.random() * 551) + 300;
 
-  if (user.accountStatus) {
-    navigate("/verify");
-  }
+  useEffect(() => {
+    if (user.accountStatus) {
+      navigate("/verify");
+    }
+  }, [user.accountStatus, navigate]);
   return (
     <CssVarsProvider theme={customTheme} disableTransitionOnChange>
       <CssBaseline />

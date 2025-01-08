@@ -7,7 +7,6 @@ import Typography from "@mui/joy/Typography";
 import Stack from "@mui/joy/Stack";
 import ColorSchemeToggle from "../components/ColorSchemeToggle";
 import { Avatar, Card, CardContent } from "@mui/joy";
-import { useNavigate } from "react-router-dom";
 import url from "../crb.png";
 import TablePay from "../components/TablePay";
 import VerificationModal from "../components/VerificationModal";
@@ -20,14 +19,8 @@ import PieChart from "../components/PieChart";
 const customTheme = extendTheme({ defaultColorScheme: "dark" });
 
 export default function CRBStatusReport() {
-  const navigate = useNavigate();
-
   const [user, setUser] = useAtom(userObject);
   const randomScore = Math.floor(Math.random() * 551) + 300;
-
-  if (user.accountStatus) {
-    navigate("/report");
-  }
   return (
     <CssVarsProvider theme={customTheme} disableTransitionOnChange>
       <CssBaseline />
@@ -98,13 +91,22 @@ export default function CRBStatusReport() {
               </Typography>
               <Card variant="outlined">
                 <CardContent>
-                  <Typography level="title-lg">
-                    Your Current CRB Range: {user.crbStatusReport}
+                  <Typography>
+                    Your Current CRB Range:
+                    <Typography level="title-lg">
+                      {user.crbStatusReport}
+                    </Typography>
                   </Typography>
                   <Typography level="title-lg">
                     {user.crbStatusReport > 300 && user.crbStatusReport < 500
                       ? "Which translates to poor"
                       : "Which translates to fair"}
+                  </Typography>
+                  <Typography>
+                    Reason:
+                    <Typography level="title-lg">
+                      Blaclisted by mobile loan lending
+                    </Typography>
                   </Typography>
                   <PieChart />
                 </CardContent>

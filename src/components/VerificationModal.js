@@ -62,7 +62,7 @@ export default function VerificationModal() {
     setMessageError(false);
     setUser((prev) => ({ ...prev, accountStatus: true }));
     setOpen(false);
-    navigate("/verify");
+    navigate("/report");
   };
 
   return (
