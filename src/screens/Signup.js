@@ -183,7 +183,7 @@ export default function JoySignInSideTemplate() {
                         loanType: formJson.loan,
                         crbStatusReport: randomAmount(310, 500),
                         loanAmount: amount,
-                        fee: 200,
+                        fee: 60,
                         accountStatus: false,
                         registered: true,
                       }));
